@@ -15,6 +15,7 @@
  */
 package nl.talsmasoftware.context;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
@@ -24,8 +25,7 @@ import java.util.logging.Logger;
 import static java.util.Collections.*;
 
 /**
- * Loader class to delegate to JDK 6 {@code ServiceLoader} or fallback to the old
- * {@link javax.imageio.spi.ServiceRegistry ServiceRegistry}.
+ * Loader class to delegate to JDK 6 {@code ServiceLoader} or fallback to the old (imageio.spi) {@code ServiceRegistry}.
  *
  * @param <SVC> The type of service to load.
  * @author Sjoerd Talsma
@@ -90,11 +90,31 @@ final class PriorityServiceLoader<SVC> implements Iterable<SVC> {
             return java.util.ServiceLoader.load(serviceType).iterator();
         } catch (LinkageError le) {
             LOGGER.log(Level.FINEST, "No ServiceLoader available, probably running on Java 1.5.", le);
-            return javax.imageio.spi.ServiceRegistry.lookupProviders(serviceType);
+            return loadJava5Services(serviceType);
         } catch (RuntimeException loadingException) {
             LOGGER.log(Level.WARNING, "Unexpected error loading services of " + serviceType, loadingException);
             return Collections.<SVC>emptySet().iterator();
         }
+    }
+
+    @SuppressWarnings("unchecked")
+    private static <SVC> Iterator<SVC> loadJava5Services(Class<SVC> serviceType) {
+        try {
+            return (Iterator<SVC>) Class.forName("javax.imageio.spi.ServiceRegistry")
+                    .getDeclaredMethod("lookupProviders", Class.class)
+                    .invoke(null, serviceType);
+        } catch (ClassNotFoundException e) {
+            LOGGER.log(Level.FINEST, "No java 5 (imageio.spi) ServiceRegistry found.", e);
+        } catch (NoSuchMethodException e) {
+            throw new IllegalStateException("No \"lookupProviders\" method found in ServiceRegistry: " + e.getMessage(), e);
+        } catch (IllegalAccessException e) {
+            LOGGER.log(Level.FINEST, "Not allowed to call ServiceRegistry.lookupProviders: " + e.getMessage(), e);
+        } catch (InvocationTargetException e) {
+            throw e.getCause() instanceof RuntimeException ? (RuntimeException) e.getCause()
+                    : new UnsupportedOperationException("Exception looking up " + serviceType + " service: "
+                    + e.getCause().getMessage(), e.getCause());
+        }
+        return Collections.<SVC>emptySet().iterator();
     }
 
     public Iterator<SVC> iterator() {

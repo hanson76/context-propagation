@@ -75,10 +75,10 @@
     </scm>
 
     <properties>
-        <maven.compiler.source>1.8</maven.compiler.source>
-        <maven.compiler.target>1.8</maven.compiler.target>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
         <root.basedir>${project.basedir}</root.basedir>
 
         <slf4j.version>1.7.25</slf4j.version>
@@ -190,6 +190,7 @@
                             <goal>jar</goal>
                         </goals>
                         <configuration>
+                            <javadocVersion>1.8</javadocVersion>
                             <doclet>nl.talsmasoftware.umldoclet.UMLDoclet</doclet>
                             <docletArtifact>
                                 <groupId>nl.talsmasoftware</groupId>
@@ -204,6 +205,9 @@
                                 <additionalOption>-umlCommand "hide empty fields"</additionalOption>
                                 <additionalOption>-umlCommand "hide empty methods"</additionalOption>
                             </additionalOptions>
+                            <sourceFileExcludes>
+                                <sourceFileExclude>module-info.java</sourceFileExclude>
+                            </sourceFileExcludes>
                         </configuration>
                     </execution>
                 </executions>

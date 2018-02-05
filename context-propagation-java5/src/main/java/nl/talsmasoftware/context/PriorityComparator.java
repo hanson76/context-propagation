@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2017 Talsma ICT
+ * Copyright 2016-2018 Talsma ICT
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,8 @@
  */
 package nl.talsmasoftware.context;
 
+import java.lang.annotation.Annotation;
+import java.lang.reflect.InvocationTargetException;
 import java.util.Comparator;
 
 import static java.lang.Math.abs;
@@ -38,7 +40,7 @@ import static java.lang.Math.abs;
 final class PriorityComparator implements Comparator<Object> {
     private static final int UNDEFINED_PRIORITY = Integer.MAX_VALUE;
 
-    static final boolean PRIORITY_AVAILABLE = isPriorityAnnotationAvailable();
+    static final boolean PRIORITY_AVAILABLE = getPriorityClass() != null;
     static final PriorityComparator INSTANCE = new PriorityComparator();
 
     private PriorityComparator() {
@@ -59,17 +61,28 @@ final class PriorityComparator implements Comparator<Object> {
         if (value == null || !PRIORITY_AVAILABLE) return UNDEFINED_PRIORITY;
         Class<?> type = value instanceof Class ? (Class<?>) value : value.getClass();
         // Don't import Priority. Loading the PriorityComparator class would fail if Priority isn't there at runtime!
-        javax.annotation.Priority priority = type.getAnnotation(javax.annotation.Priority.class);
-        return priority != null ? priority.value() : priorityOf(type.getSuperclass());
+        try {
+            Class<? extends Annotation> priorityClass = getPriorityClass();
+            if (priorityClass == null) return UNDEFINED_PRIORITY;
+            Object priority = type.getAnnotation(priorityClass);
+            if (priority == null) return priorityOf(type.getSuperclass());
+            return (Integer) priorityClass.getMethod("value").invoke(priority);
+        } catch (NoSuchMethodException nsme) {
+            return UNDEFINED_PRIORITY;
+        } catch (IllegalAccessException e) {
+            return UNDEFINED_PRIORITY;
+        } catch (InvocationTargetException e) {
+            return UNDEFINED_PRIORITY;
+        }
     }
 
-    private static boolean isPriorityAnnotationAvailable() {
+    private static Class<? extends Annotation> getPriorityClass() {
         try {
-            return Class.forName("javax.annotation.Priority") != null;
+            return (Class<? extends Annotation>) Class.forName("javax.annotation.Priority");
         } catch (ClassNotFoundException cnfe) {
-            return false;
+            return null;
         } catch (LinkageError le) {
-            return false;
+            return null;
         }
     }
 
