@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-module nl.talsmasoftware.context.core {
+module nl.talsmasoftware.context {
 
     requires java.logging;
 

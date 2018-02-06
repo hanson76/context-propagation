@@ -15,7 +15,7 @@
  */
 module nl.talsmasoftware.context.java8 {
 
-    requires transitive nl.talsmasoftware.context.core;
+    requires transitive nl.talsmasoftware.context;
     requires java.logging;
 
     exports nl.talsmasoftware.context.functions;
