@@ -190,6 +190,9 @@
                             <goal>jar</goal>
                         </goals>
                         <configuration>
+                            <jdkToolchain>
+                                <version>[9,)</version>
+                            </jdkToolchain>
                             <javadocVersion>1.8</javadocVersion>
                             <doclet>nl.talsmasoftware.umldoclet.UMLDoclet</doclet>
                             <docletArtifact>

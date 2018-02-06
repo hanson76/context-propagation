@@ -13,13 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-module nl.talsmasoftware.context.core {
+module nl.talsmasoftware.context.java8 {
 
+    requires transitive nl.talsmasoftware.context.core;
     requires java.logging;
 
-    exports nl.talsmasoftware.context;
-    exports nl.talsmasoftware.context.delegation;
-    exports nl.talsmasoftware.context.executors;
-    exports nl.talsmasoftware.context.threadlocal;
+    exports nl.talsmasoftware.context.functions;
+    exports nl.talsmasoftware.context.futures;
 
 }
