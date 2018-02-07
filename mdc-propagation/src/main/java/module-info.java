@@ -16,10 +16,10 @@
 module nl.talsmasoftware.context.locale {
 
     requires transitive nl.talsmasoftware.context;
-    requires java.logging;
+    requires transitive org.slf4j;
 
-    exports nl.talsmasoftware.context.locale;
+    exports nl.talsmasoftware.context.mdc;
 
-    provides nl.talsmasoftware.context.ContextManager with nl.talsmasoftware.context.locale.LocaleContextManager;
+    provides nl.talsmasoftware.context.ContextManager with nl.talsmasoftware.context.mdc.MdcManager;
 
 }

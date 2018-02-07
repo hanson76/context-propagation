@@ -22,4 +22,6 @@ module nl.talsmasoftware.context {
     exports nl.talsmasoftware.context.executors;
     exports nl.talsmasoftware.context.threadlocal;
 
+    uses nl.talsmasoftware.context.ContextManager;
+
 }
