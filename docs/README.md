@@ -1,6 +1,6 @@
 [![Build Status][ci-img]][ci]
 [![Coverage Status][coveralls-img]][coveralls]
-[![Released Version][maven-img]][maven]
+[![Maven Version][maven-img]][maven]
 
 # Context propagation library
 
@@ -27,6 +27,7 @@ out of the box by this context-propagation library:
 - [ServletRequest contexts][servletrequest propagation]
 - [Slf4J MDC (Mapped Diagnostic Context)][mdc propagation]
 - [Locale context][locale context]
+- [Spring Security Context]
 - [OpenTracing Span contexts][opentracing span propagation]
 - _Yours?_ Feel free to create an issue or pull-request
   if you believe there's a general context that was forgotten. 
@@ -74,15 +75,23 @@ public class DummyContextManager implements ContextManager<String> {
 }
 ```
 
-  [ci-img]: https://img.shields.io/travis/talsma-ict/context-propagation/master.svg
+## License
+
+[Apache 2.0 license](../LICENSE)
+
+
+  [ci-img]: https://travis-ci.org/talsma-ict/context-propagation.svg?branch=develop
   [ci]: https://travis-ci.org/talsma-ict/context-propagation
-  [maven-img]: https://img.shields.io/maven-central/v/nl.talsmasoftware.context/context-propagation.svg
-  [maven]: http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22nl.talsmasoftware.context%22%20AND%20a%3A%22context-propagation%22
+  [maven-img]: https://img.shields.io/maven-metadata/v/http/central.maven.org/maven2/nl/talsmasoftware/context/context-propagation/maven-metadata.xml.svg
+  [maven]: http://mvnrepository.com/artifact/nl.talsmasoftware.context
+  [release-img]: https://img.shields.io/github/release/talsma-ict/context-propagation.svg
+  [release]: https://github.com/talsma-ict/context-propagation/releases
   [coveralls-img]: https://coveralls.io/repos/github/talsma-ict/context-propagation/badge.svg
   [coveralls]: https://coveralls.io/github/talsma-ict/context-propagation
 
-  [servletrequest propagation]: servletrequest-propagation
-  [mdc propagation]: mdc-propagation
-  [locale context]: locale-context
-  [opentracing span propagation]: opentracing-span-propagation
+  [servletrequest propagation]: ../servletrequest-propagation
+  [mdc propagation]: ../mdc-propagation
+  [locale context]: ../locale-context
+  [spring security context]: ../spring-security-context
+  [opentracing span propagation]: ../opentracing-span-propagation
   [default constructor]: https://en.wikipedia.org/wiki/Nullary_constructor

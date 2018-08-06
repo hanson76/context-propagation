@@ -1,15 +1,10 @@
-[![Released Version][maven-img]][maven] 
+[![Maven Version][maven-img]][maven] 
 
 # Locale context module
 
 This module allows an application to maintain a custom `Locale`
 in a context that is bound to the current thread,
 allowing a configured `Locale` to be propagated.  
-
-Adding the `servletrequest-propagation` jar to your classpath
-provides static access to the current `ServletRequest`
-via the `ServletRequestContextManager.currentServletRequest()` method
-if the `ServletRequestContextFilter` was applied to the inbound request.
 
 ## How to use this module
 
@@ -18,7 +13,7 @@ if the `ServletRequestContextFilter` was applied to the inbound request.
   <dependency>
       <groupId>nl.talsmasoftware.context</groupId>
       <artifactId>locale-context</artifactId>
-      <version>[see maven-central version above]</version>
+      <version>[see maven badge above]</version>
   </dependency>
   ```  
 2. Make sure to use the `ContextAwareExecutorService` as your threadpool.
@@ -42,5 +37,5 @@ if the `ServletRequestContextFilter` was applied to the inbound request.
   ```
 
 
-  [maven-img]: https://img.shields.io/maven-central/v/nl.talsmasoftware.context/locale-context.svg
-  [maven]: http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22nl.talsmasoftware.context%22%20AND%20a%3A%22locale-context%22
+  [maven-img]: https://img.shields.io/maven-metadata/v/http/central.maven.org/maven2/nl/talsmasoftware/context/context-propagation/maven-metadata.xml.svg
+  [maven]: http://mvnrepository.com/artifact/nl.talsmasoftware.context/locale-context

@@ -22,7 +22,7 @@
     <parent>
         <groupId>nl.talsmasoftware.context</groupId>
         <artifactId>context-propagation-root</artifactId>
-        <version>0.4.15-SNAPSHOT</version>
+        <version>0.6.2-SNAPSHOT</version>
     </parent>
 
     <!-- Artifact identification -->
@@ -34,6 +34,7 @@
         <maven.compiler.source>1.5</maven.compiler.source>
         <maven.compiler.target>1.5</maven.compiler.target>
         <root.basedir>${project.parent.basedir}</root.basedir>
+        <servlet-api.version>4.0.1</servlet-api.version>
     </properties>
 
     <dependencies>
@@ -45,7 +46,7 @@
         <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>javax.servlet-api</artifactId>
-            <version>4.0.0</version>
+            <version>${servlet-api.version}</version>
             <scope>provided</scope>
             <optional>true</optional>
         </dependency>

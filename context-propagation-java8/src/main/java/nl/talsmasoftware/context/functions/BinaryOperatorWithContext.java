@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2017 Talsma ICT
+ * Copyright 2016-2018 Talsma ICT
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,8 @@ package nl.talsmasoftware.context.functions;
 import nl.talsmasoftware.context.ContextSnapshot;
 
 import java.util.function.BinaryOperator;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 /**
  * A wrapper for {@link BinaryOperator} that {@link ContextSnapshot#reactivate() reactivates a context snapshot} before
@@ -28,7 +30,15 @@ import java.util.function.BinaryOperator;
 public class BinaryOperatorWithContext<T> extends BiFunctionWithContext<T, T, T> implements BinaryOperator<T> {
 
     public BinaryOperatorWithContext(ContextSnapshot snapshot, BinaryOperator<T> delegate) {
-        super(snapshot, delegate);
+        this(snapshot, delegate, null);
+    }
+
+    public BinaryOperatorWithContext(ContextSnapshot snapshot, BinaryOperator<T> delegate, Consumer<ContextSnapshot> consumer) {
+        super(snapshot, delegate, consumer);
+    }
+
+    protected BinaryOperatorWithContext(Supplier<ContextSnapshot> supplier, BinaryOperator<T> delegate, Consumer<ContextSnapshot> consumer) {
+        super(supplier, delegate, consumer);
     }
 
 }

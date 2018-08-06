@@ -17,7 +17,12 @@ package nl.talsmasoftware.context;
 
 import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -28,8 +33,6 @@ import java.util.logging.Logger;
  * Such a {@link ContextSnapshot snapshot} can be passed to a background task to allow the context to be
  * {@link ContextSnapshot#reactivate() reactivated} in that background thread, until it gets
  * {@link Context#close() closed} again (preferably in a <code>try-with-resources</code> construct).
- * <p>
- * <center><img src="ContextManagers.svg" alt="Context managers utility-class"></center>
  *
  * @author Sjoerd Talsma
  */
@@ -119,10 +122,6 @@ public final class ContextManagers {
          * or a new instance worst-case (warnings will be logged).
          */
         private static ContextManager<?> getContextManagerByName(String contextManagerClassName) {
-            // A single serviceloader iteration is now done in the reactivate method.
-            //            for (ContextManager contextManager : SERVICE_LOADER) {
-            //                if (contextManagerClassName.equals(contextManager.getClass().getName())) return contextManager;
-            //            }
             LOGGER.log(Level.WARNING, "Context manager \"{0}\" not found in service locator! " +
                     "Attempting to create a new instance as last-resort.", contextManagerClassName);
             try {

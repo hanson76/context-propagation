@@ -22,7 +22,7 @@
     <parent>
         <groupId>nl.talsmasoftware.context</groupId>
         <artifactId>context-propagation-root</artifactId>
-        <version>0.4.15-SNAPSHOT</version>
+        <version>0.6.2-SNAPSHOT</version>
     </parent>
 
     <artifactId>context-propagation-bom</artifactId>
@@ -68,6 +68,11 @@
             <dependency>
                 <groupId>${project.groupId}</groupId>
                 <artifactId>servletrequest-propagation</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>spring-security-context</artifactId>
                 <version>${project.version}</version>
             </dependency>
 

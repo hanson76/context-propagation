@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2017 Talsma ICT
+ * Copyright 2016-2018 Talsma ICT
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,10 +16,11 @@
 package nl.talsmasoftware.context.functions;
 
 import nl.talsmasoftware.context.Context;
+import nl.talsmasoftware.context.ContextManagers;
 import nl.talsmasoftware.context.ContextSnapshot;
-import nl.talsmasoftware.context.delegation.WrapperWithContext;
 
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -31,19 +32,34 @@ import static java.util.Objects.requireNonNull;
  *
  * @author Sjoerd Talsma
  */
-public class ConsumerWithContext<T> extends WrapperWithContext<Consumer<T>> implements Consumer<T> {
+public class ConsumerWithContext<T> extends WrapperWithContextAndConsumer<Consumer<T>> implements Consumer<T> {
     private static final Logger LOGGER = Logger.getLogger(ConsumerWithContext.class.getName());
 
     public ConsumerWithContext(ContextSnapshot snapshot, Consumer<T> delegate) {
-        super(snapshot, delegate);
+        this(snapshot, delegate, null);
     }
 
+    public ConsumerWithContext(ContextSnapshot snapshot, Consumer<T> delegate, Consumer<ContextSnapshot> consumer) {
+        super(snapshot, delegate, consumer);
+    }
+
+    protected ConsumerWithContext(Supplier<ContextSnapshot> supplier, Consumer<T> delegate, Consumer<ContextSnapshot> consumer) {
+        super(supplier, delegate, consumer);
+    }
 
     @Override
     public void accept(T t) {
-        try (Context<Void> context = snapshot.reactivate()) {
-            LOGGER.log(Level.FINEST, "Delegating accept method with {0} to {1}.", new Object[]{context, delegate()});
-            nonNullDelegate().accept(t);
+        try (Context<Void> context = snapshot().reactivate()) {
+            try { // inner 'try' is needed: https://github.com/talsma-ict/context-propagation/pull/56#discussion_r201590623
+                LOGGER.log(Level.FINEST, "Delegating accept method with {0} to {1}.", new Object[]{context, delegate()});
+                nonNullDelegate().accept(t);
+            } finally {
+                consumer().ifPresent(consumer -> {
+                    ContextSnapshot resultSnapshot = ContextManagers.createContextSnapshot();
+                    LOGGER.log(Level.FINEST, "Captured context snapshot after delegation: {0}", resultSnapshot);
+                    consumer.accept(resultSnapshot);
+                });
+            }
         }
     }
 
@@ -51,10 +67,18 @@ public class ConsumerWithContext<T> extends WrapperWithContext<Consumer<T>> impl
     public Consumer<T> andThen(Consumer<? super T> after) {
         requireNonNull(after, "Cannot follow consumer with after consumer <null>.");
         return (T t) -> {
-            try (Context<Void> context = snapshot.reactivate()) {
-                LOGGER.log(Level.FINEST, "Delegating andThen method with {0} to {1}.", new Object[]{context, delegate()});
-                nonNullDelegate().accept(t);
-                after.accept(t);
+            try (Context<Void> context = snapshot().reactivate()) {
+                try { // inner 'try' is needed: https://github.com/talsma-ict/context-propagation/pull/56#discussion_r201590623
+                    LOGGER.log(Level.FINEST, "Delegating andThen method with {0} to {1}.", new Object[]{context, delegate()});
+                    nonNullDelegate().accept(t);
+                    after.accept(t);
+                } finally {
+                    consumer().ifPresent(consumer -> {
+                        ContextSnapshot resultSnapshot = ContextManagers.createContextSnapshot();
+                        LOGGER.log(Level.FINEST, "Captured context snapshot after delegation: {0}", resultSnapshot);
+                        consumer.accept(resultSnapshot);
+                    });
+                }
             }
         };
     }
