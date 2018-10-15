@@ -75,6 +75,25 @@ public class DummyContextManager implements ContextManager<String> {
 }
 ```
 
+## Performance metrics
+
+No library is 'free' with regards to performance.
+Capturing a context snapshot and reactivating it in another thread is no different.
+For insight, the library tracks the overall time used creating and reactivating
+context snapshots along with time spent in each individual `ContextManager`.
+
+### Logging performance
+On a development machine, you can get timing for each snapshot by turning on logging
+for `nl.talsmasoftware.context.Timing` at `FINEST` or `TRACE` level 
+(depending on your logger of choice).
+Please **do not** turn this on in production as the logging overhead will most likely
+have a noticable impact to the context management itself.
+
+### Dropwizard metrics
+If your project happens to use [dropwizard metrics](https://metrics.dropwizard.io/),
+adding the [context propagation metrics] module to your classpath will automatically 
+configure various timers in the default metric registry of your application.
+
 ## License
 
 [Apache 2.0 license](../LICENSE)
@@ -94,4 +113,5 @@ public class DummyContextManager implements ContextManager<String> {
   [locale context]: ../locale-context
   [spring security context]: ../spring-security-context
   [opentracing span propagation]: ../opentracing-span-propagation
+  [context propagation metrics]: ../context-propagation-metrics
   [default constructor]: https://en.wikipedia.org/wiki/Nullary_constructor
