@@ -12,11 +12,38 @@ thread.
 
 ## How to use this library
 
-Use a `ContextAwareExecutorService` instead of your usual threadpool to start
-background threads.  
-It will create a snapshot of supported `ThreadLocal`-based contexts and
-reactivate them in the background thread when started.
-The ThreadLocal values from the calling thread will therefore automatically 
+### Capturing a snapshot of ThreadLocal context values
+
+Just before creating a new thread, capture a snapshot of all ThreadLocal context
+values:
+```java
+ContextSnapshot snapshot = ContextManagers.createContextSnapshot();
+```
+
+In the code of your background thread, activate the snapshot to have all ThreadLocal
+context values set as they were captured:
+```java
+try (Context<Void> reactivation = snapshot.reactivate()) {
+    // All ThreadLocal values from the snapshot are available within this block
+}
+```
+
+### Threadpools and ExecutorService
+
+If your background threads are managed by an `ExecutorService` acting as a threadpool,
+you can use the `ContextAwareExecutorService` instead of your usual threadpool 
+to automatically take snapshots when submitting new work and propagating them
+into the background threads.  
+The `ContextAwareExecutorService` can wrap any `ExecutorService` for the actual thread execution:
+```java
+// private static final ExecutorService THREADPOOL = Executors.newCachedThreadpool();
+private static final ExecutorService THREADPOOL = 
+        new ContextAwareExecutorService(Executors.newCachedThreadpool());
+```
+
+It will automatically create a snapshot and reactivate it in the 
+background thread when started.  
+The ThreadLocal values from the calling thread will therefore 
 be available in the background thread as well.
 
 ## Supported contexts
@@ -74,6 +101,21 @@ public class DummyContextManager implements ContextManager<String> {
     }
 }
 ```
+
+## Caching
+
+By default the `ContextManagers` class caches the context manager instances it finds per
+_context classloader_. Since the cache is per classloader, this should work satisfactory
+for applications with simple classloader hierarchies (e.g. _spring boot_, _dropwizard_ etc) 
+and complex hierarchies (JEE and the like).
+
+### Disable caching
+
+If however, you wish to disable caching of the context manager instances, you can set either:
+- the java system property `talsmasoftware.context.caching`, or
+- the environment variable `TALSMASOFTWARE_CONTEXT_CACHNG`
+
+to the values `false` or `0`.
 
 ## Performance metrics
 

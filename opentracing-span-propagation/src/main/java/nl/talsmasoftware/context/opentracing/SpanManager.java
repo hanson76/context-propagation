@@ -16,6 +16,7 @@
 package nl.talsmasoftware.context.opentracing;
 
 import io.opentracing.Scope;
+import io.opentracing.ScopeManager;
 import io.opentracing.Span;
 import io.opentracing.util.GlobalTracer;
 import nl.talsmasoftware.context.Context;
@@ -26,7 +27,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 /**
  * Manager for <a href="http://opentracing.io/">OpenTracing</a> {@linkplain Span}.
  * <p>
- * Management of {@linkplain Span spans} is delegated to the {@linkplain GlobalTracer}.
+ * Management of {@linkplain Span spans} is delegated to the {@linkplain ScopeManager}
+ * from the {@linkplain GlobalTracer}.
  *
  * @author Sjoerd Talsma
  */
@@ -43,11 +45,11 @@ public class SpanManager implements ContextManager<Span> {
     @Override
     public Context<Span> getActiveContext() {
         Span activeSpan = GlobalTracer.get().activeSpan();
-        return activeSpan == null ? null : new ManagedSpan(activeSpan, null);
+        return activeSpan == null ? null : new SpanContext(activeSpan, null);
     }
 
     /**
-     * {@linkplain GlobalTracer#activateSpan(Span) Activates} the given {@linkplain Span span}.
+     * {@linkplain ScopeManager#activate(Span, boolean) Activates} the given {@linkplain Span span}.
      * <p>
      * {@linkplain Context#close() Closing} the returned {@link Context} will also close the
      * corresponding {@link Scope} as it was also activated by us.<br>
@@ -66,15 +68,24 @@ public class SpanManager implements ContextManager<Span> {
      */
     @Override
     public Context<Span> initializeNewContext(final Span span) {
-        return new ManagedSpan(span, span == null ? null : GlobalTracer.get().activateSpan(span));
+        Scope scope = span == null ? null : GlobalTracer.get().scopeManager().activate(span, false);
+        return new SpanContext(span, scope);
     }
 
-    private static class ManagedSpan implements Context<Span> {
+    /**
+     * @return Just the simple class name as this class carries no internal state.
+     */
+    @Override
+    public String toString() {
+        return getClass().getSimpleName();
+    }
+
+    private static class SpanContext implements Context<Span> {
         private final AtomicBoolean closed = new AtomicBoolean(false);
         private final Span span;
         private final Scope scope;
 
-        private ManagedSpan(Span span, Scope scope) {
+        private SpanContext(Span span, Scope scope) {
             this.span = span;
             this.scope = scope;
         }
@@ -89,6 +100,11 @@ public class SpanManager implements ContextManager<Span> {
             if (closed.compareAndSet(false, true) && scope != null) {
                 scope.close();
             }
+        }
+
+        @Override
+        public String toString() {
+            return getClass().getSimpleName() + (closed.get() ? "{closed}" : "{" + span + '}');
         }
     }
 
